@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Modern To-Do List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --card-color: #ffffff;
+      --primary: #4f46e5;
+      --danger: #ef4444;
+      --completed: #94a3b8;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background-color: var(--card-color);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group input,
+    .input-group select,
+    .input-group button {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .input-group button {
+      background-color: var(--primary);
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    .input-group button:hover {
+      background-color: #4338ca;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+    }
+
+    li {
+      background-color: #f9fafb;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+    }
+
+    li:hover {
+      background-color: #f1f5f9;
+    }
+
+    li.completed span.task-text {
+      text-decoration: line-through;
+      color: var(--completed);
+    }
+
+    .task-info {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .task-meta {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .priority-low { color: green; }
+    .priority-medium { color: orange; }
+    .priority-high { color: red; }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--danger);
+      transition: var(--transition);
+    }
+
+    .delete-btn:hover {
+      color: #dc2626;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 To-Do List</h1>
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Enter a task..." />
+      <select id="priority">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+      <input type="date" id="dueDate" />
+      <button onclick="addTask()">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    let tasks = [];
+
+    window.onload = () => {
+      const saved = localStorage.getItem('tasks');
+      if (saved) {
+        tasks = JSON.parse(saved);
+        renderTasks();
+      }
+    };
+
+    function addTask() {
+      const text = document.getElementById('taskInput').value.trim();
+      const priority = document.getElementById('priority').value;
+      const dueDate = document.getElementById('dueDate').value;
+
+      if (!text) return;
+
+      tasks.push({ text, priority, dueDate, completed: false });
+      saveTasks();
+      clearInputs();
+      renderTasks();
+    }
+
+    function clearInputs() {
+      document.getElementById('taskInput').value = '';
+      document.getElementById('dueDate').value = '';
+      document.getElementById('priority').value = 'medium';
+    }
+
+    function toggleComplete(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveTasks();
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        if (task.completed) li.classList.add('completed');
+
+        const taskInfo = document.createElement('div');
+        taskInfo.className = 'task-info';
+        taskInfo.onclick = () => toggleComplete(index);
+
+        const taskText = document.createElement('span');
+        taskText.className = 'task-text';
+        taskText.textContent = task.text;
+
+        const meta = document.createElement('small');
+        meta.className = 'task-meta';
+        meta.innerHTML = `
+          <span class="priority-${task.priority}">Priority: ${task.priority}</span>
+          ${task.dueDate ? ` | Due: ${task.dueDate}` : ''}
+        `;
+
+        taskInfo.appendChild(taskText);
+        taskInfo.appendChild(meta);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.innerHTML = '🗑️';
+        delBtn.onclick = () => deleteTask(index);
+
+        li.appendChild(taskInfo);
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+  </script>
+</body>
+</html>
