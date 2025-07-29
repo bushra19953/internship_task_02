@@ -4,74 +4,198 @@
   <meta charset="UTF-8" />
   <title>To-Do List</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #f0f4f8;
-      --card-color: #ffffff;
-      --primary: #4f46e5;
-      --danger: #ef4444;
-      --completed: #94a3b8;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      --transition: all 0.3s ease;
+      --bg-gradient: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --primary-glow: #6366f1;
+      --secondary-glow: #8b5cf6;
+      --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+      --danger-glow: #ef4444;
+      --success-glow: #10b981;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+      --shadow-glow: 0 8px 32px rgba(99, 102, 241, 0.15);
+      --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--bg-color);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-gradient);
       margin: 0;
       padding: 2rem;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
     }
 
     .container {
-      background-color: var(--card-color);
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: var(--shadow);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      padding: 2.5rem;
+      border-radius: 24px;
+      box-shadow: var(--shadow-glow), var(--shadow-soft);
       width: 100%;
       max-width: 600px;
+      position: relative;
+      animation: slideUp 0.8s var(--bounce);
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--accent-gradient);
+      border-radius: 24px;
+      padding: 1px;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: xor;
+      -webkit-mask-composite: xor;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes taskSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 1.5rem;
-      color: var(--primary);
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 2.5rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+      letter-spacing: -0.02em;
     }
 
     .input-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
 
     .input-group input,
     .input-group select,
     .input-group button {
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      padding: 0.875rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 400;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
       transition: var(--transition);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      color: var(--text-primary);
+      font-family: inherit;
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-muted);
     }
 
     .input-group input:focus,
     .input-group select:focus {
-      border-color: var(--primary);
+      border-color: var(--primary-glow);
       outline: none;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
     }
 
     .input-group button {
-      background-color: var(--primary);
+      background: var(--accent-gradient);
       color: white;
       cursor: pointer;
       border: none;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .input-group button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .input-group button:hover::before {
+      left: 100%;
     }
 
     .input-group button:hover {
-      background-color: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    .input-group button:active {
+      transform: translateY(0);
     }
 
     ul {
@@ -81,67 +205,181 @@
     }
 
     li {
-      background-color: #f9fafb;
-      padding: 1rem;
-      margin-bottom: 0.75rem;
-      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      animation: taskSlideIn 0.5s var(--bounce);
+    }
+
+    li::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent-gradient);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
     }
 
     li:hover {
-      background-color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2), 0 0 20px rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    li:hover::before {
+      transform: scaleY(1);
+    }
+
+    li.completed {
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    li.completed::before {
+      background: var(--success-glow);
+      transform: scaleY(1);
     }
 
     li.completed span.task-text {
       text-decoration: line-through;
-      color: var(--completed);
+      color: var(--text-muted);
+      opacity: 0.6;
     }
 
     .task-info {
       display: flex;
       flex-direction: column;
       cursor: pointer;
+      flex: 1;
+    }
+
+    .task-text {
+      color: var(--text-primary);
+      font-weight: 400;
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+      transition: var(--transition);
     }
 
     .task-meta {
       font-size: 0.85rem;
-      color: #6b7280;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
     }
 
-    .priority-low { color: green; }
-    .priority-medium { color: orange; }
-    .priority-high { color: red; }
+    .priority-low { 
+      color: var(--success-glow);
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+    .priority-medium { 
+      color: #f59e0b;
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    }
+    .priority-high { 
+      color: var(--danger-glow);
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    }
 
     .delete-btn {
-      background: none;
-      border: none;
-      font-size: 1.25rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 10px;
+      padding: 0.5rem;
+      font-size: 1.1rem;
       cursor: pointer;
-      color: var(--danger);
+      color: var(--danger-glow);
       transition: var(--transition);
+      backdrop-filter: blur(10px);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .delete-btn:hover {
-      color: #dc2626;
+      background: rgba(239, 68, 68, 0.2);
       transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+      animation: glow 2s infinite;
+    }
+
+    .delete-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem;
+      }
+      
+      .container {
+        padding: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .input-group input,
+      .input-group select,
+      .input-group button {
+        width: 100%;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-gradient);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #5b5bf6, #7c3aed);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📝 To-Do List</h1>
+    <h1>✨ To-Do List</h1>
     <div class="input-group">
-      <input type="text" id="taskInput" placeholder="Enter a task..." />
+      <input type="text" id="taskInput" placeholder="What needs to be done?" />
       <select id="priority">
-        <option value="low">Low</option>
-        <option value="medium" selected>Medium</option>
-        <option value="high">High</option>
+        <option value="low">Low Priority</option>
+        <option value="medium" selected>Medium Priority</option>
+        <option value="high">High Priority</option>
       </select>
       <input type="date" id="dueDate" />
-      <button onclick="addTask()">Add</button>
+      <button onclick="addTask()">Add Task</button>
     </div>
     <ul id="taskList"></ul>
   </div>
@@ -183,9 +421,14 @@
     }
 
     function deleteTask(index) {
-      tasks.splice(index, 1);
-      saveTasks();
-      renderTasks();
+      const taskElement = document.querySelectorAll('#taskList li')[index];
+      taskElement.style.animation = 'taskSlideIn 0.3s reverse';
+      
+      setTimeout(() => {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
+      }, 300);
     }
 
     function renderTasks() {
@@ -204,12 +447,20 @@
         taskText.className = 'task-text';
         taskText.textContent = task.text;
 
-        const meta = document.createElement('small');
+        const meta = document.createElement('div');
         meta.className = 'task-meta';
-        meta.innerHTML = `
-          <span class="priority-${task.priority}">Priority: ${task.priority}</span>
-          ${task.dueDate ? ` | Due: ${task.dueDate}` : ''}
-        `;
+        
+        const prioritySpan = document.createElement('span');
+        prioritySpan.className = `priority-${task.priority}`;
+        prioritySpan.textContent = `${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority`;
+        
+        meta.appendChild(prioritySpan);
+        
+        if (task.dueDate) {
+          const dueDateSpan = document.createElement('span');
+          dueDateSpan.textContent = `Due: ${new Date(task.dueDate).toLocaleDateString()}`;
+          meta.appendChild(dueDateSpan);
+        }
 
         taskInfo.appendChild(taskText);
         taskInfo.appendChild(meta);
@@ -217,7 +468,10 @@
         const delBtn = document.createElement('button');
         delBtn.className = 'delete-btn';
         delBtn.innerHTML = '🗑️';
-        delBtn.onclick = () => deleteTask(index);
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteTask(index);
+        };
 
         li.appendChild(taskInfo);
         li.appendChild(delBtn);
@@ -228,6 +482,13 @@
     function saveTasks() {
       localStorage.setItem('tasks', JSON.stringify(tasks));
     }
+
+    // Add keyboard support
+    document.getElementById('taskInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        addTask();
+      }
+    });
   </script>
 </body>
 </html>
